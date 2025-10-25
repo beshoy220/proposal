@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ant Yard Platform Proposal</title>
+    <style>
+        :root {
+            --primary-color: #2c5530;
+            --secondary-color: #4a7c59;
+            --accent-color: #8fb996;
+            --light-color: #f5f5f5;
+            --dark-color: #1a1a1a;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            background: white;
+            margin: 2rem 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+        
+        .section-header:hover {
+            background-color: var(--primary-color);
+        }
+        
+        .section-header h2 {
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        
+        .section-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+        }
+        
+        .section.active .section-content {
+            padding: 2rem;
+            max-height: 5000px;
+        }
+        
+        .toggle-icon {
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+        
+        .section.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .text-content {
+            padding: 1rem;
+        }
+        
+        .text-content h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .text-content ul {
+            margin: 1rem 0;
+            padding-right: 1.5rem;
+        }
+        
+        .text-content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .gallery-item {
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .close-modal:hover {
+            color: var(--accent-color);
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        
+        .comparison-table th, .comparison-table td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table th {
+            background-color: var(--accent-color);
+            color: var(--dark-color);
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .highlight {
+            background-color: rgba(143, 185, 150, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-right: 4px solid var(--accent-color);
+            margin: 1rem 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-in;
+        }
+        
+        .modal.zoomed {
+            cursor: grab;
+        }
+        
+        .modal.zoomed:active {
+            cursor: grabbing;
+        }
+        
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+            transform-origin: center center;
+        }
+        
+        .modal-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 25px;
+        }
+        
+        .modal-btn {
+            background: var(--accent-color);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        
+        .modal-btn:hover {
+            background: var(--secondary-color);
+            transform: scale(1.1);
+        }
+        
+        .zoom-level {
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            font-size: 14px;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 1001;
+        }
+        
+        .close-modal:hover {
+            color: var(--accent-color);
+        }
+        
+        /* Rest of your existing CSS remains the same */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* ... (keep all your other existing CSS styles) ... */
+        
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .gallery-item {
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            color: #666;
+            border-top: 1px solid #eee;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Ant Yard Platform Proposal</h1>
+            <p>عرض تقديمي لمنصة Ant Yard المتكاملة - حل مبتكر للتجارة الإلكترونية والتعليم</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Section 1: Introduction -->
+        <div class="section active">
+            <div class="section-header">
+                <h2>١. المقدمة والرؤية</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <div class="content-grid">
+                    <div class="text-content">
+                        <h3>رؤية المشروع</h3>
+                        <p>في عصر يتجه فيه الجميع نحو الحلول الجاهزة والمعقدة، نقدم لكم رؤية مختلفة تماماً لتجارة إلكترونية أكثر ذكاءً ومرونة. نحن نؤمن بأن كل عمل تجاري فريد ويستحق حلًا مصممًا خصيصًا لاحتياجاته، وليس مجرد نموذج جاهز يحاول الجميع الاختباء وراءه.</p>
+                        <h3> </h3>
+
+                        <h3>منصة Ant Yard </h3>
+                        <p>منصة "Ant Yard" لن تكون مجرد متجر إلكتروني تقليدي، بل تجربة متكاملة تجمع بين التعليم والترفيه والتجارة في مجال تربية النمل. وهذا النجاح هو ما دفعنا لتطوير نموذج عمل مبتكر يمكن تطبيقه على مختلف القطاعات والتجارات.</p>
+                        
+                        <div class="highlight">
+                            <p>نعتمد فلسفة التدرج في البناء والمرونة في التطوير، مع الحفاظ على البساطة والكفاءة .</p>
+                        </div>
+                    </div>
+                    <div class="image-content">
+                        <div class="image-gallery">
+                            <div class="gallery-item">
+                                <img src="C:\Users\Beshoy\Desktop\Ant Yard\All.png" alt="All" data-full="C:\Users\Beshoy\Desktop\Ant Yard\All.png">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 2: The Platform -->
+        <div class="section">
+            <div class="section-header">
+                <h2>٢. شكل المنصه </h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <div class="content-grid">
+                    <div class="text-content">
+                        <p>المنصه سوف تنقسم الى جزئين كالاتى:</p>
+                        <h3></h3>
+                        <h3>[Client View] - واجهة المستخدم١.</h3>
+                        <h4 style="color: #2c5530;">1. الصفحة الرئيسية (Home Page)</h4>
+                        <h4>التخطيط والتصميم:</h4>
+                        <ul>
+                            <li>واجهة حديثة تجمع بين العناصر المرئية والنصية، مع تركيز على تجربة المستخدم. تحتوي على أقسام رئيسية مثل المدونة، المتجر، والأسئلة والأجوبة.</li>
+                        </ul>
+                        <h4>الميزات الرئيسية:</h4>
+                        <ul>
+                            <li>أقسام متنوعة: فيديوهات، مقالات، منتجات.</li>
+                        </ul>
+                        <ul>
+                            <li>عرض إحصاءات تفاعلية (مثل: عدد النمل المباع و عدد العملاء...).</li>
+                        </ul>
+                    
+                        <h4>عناصر التنقل:</h4>
+                        <ul>
+                            <li>روابط سريعة للمدونة، المتجر، قسم الأسئلة، والتسجيل.</li>
+                            <li>أزرار تفاعلية مثل "تواصل معانا" أو "معرفه المزيد". تنقلك الى اماكن مختلفه فى المنصه او الى الواتساب،</li>
+
+                        </ul>
+                        <hr>
+                        <h3></h3>
+
+                        <h4 style="color: #2c5530;">٢. المتجر الإلكتروني (E-Store)</h4>
+                        <h4>عرض المنتجات:</h4>
+                          <ul>
+                              <li>تصنيفات واضحة مثل: "نمل عامل"، "بيت نمل"، "طعام للنمل".</li>
+                              <li>عرض المنتجات بصورة، السعر، ووصف مختصر (مثال: "نمل الحفيفة السوداء - SAR 10"). و يمكن مشاركتها من العملاء لاصقائهم عبر وسائل التواصل الاجتماعا</li>
+                          </ul>
+                          
+                          <h4>تجربة الشراء:</h4>
+                          <ul>
+                              <li>سلة مشتريات مبسطة مع تفاصيل الأسعار وتكلفة الشحن.</li>
+                              <li>خيارات الدفع الإلكتروني.</li>
+                              <li>مدة الشحن موضحة.</li>
+                          </ul>
+                          
+                         
+                          <hr>
+                          <h3></h3>
+                         <h4 style="color: #2c5530;">٣. المدونة (Blog)</h4>
+                          
+                          <h4>هيكل المحتوى:</h4>
+                          <ul>
+                              <li>مقالات متخصصة عن سلوك النمل (مثل: "معارك النمل: عندما تصبح الحشرات محاربين شرسين").</li>
+                              <li>تواريخ النشر ومعلومات الكاتب واضحة.</li>
+                         </ul>
+                          
+                          
+                         
+                         <h4>عناصر التفاعل:</h4>
+                         <ul>
+                             <li>قسم "شاهد أيضاً" لتشجيع القراءة الإضافية.</li>
+                             <li>مشاركة المقالات عبر منصات التواصل.</li>
+                         </ul>
+    
+                         <hr>
+                         <h3></h3>
+                             <h4 style="color: #2c5530;">٤. قسم الأسئلة والأجوبة (Kids Q&A)</h4>
+    
+                             <h4>الشكل التعليمي:</h4>
+                             <ul>
+                                 <li>أسئلة تفاعلية لتعليم الأطفال عن النمل (مثال: "أين يعيش النمل؟").</li>
+                                 <li>خيارات متعددة للإجابة.</li>
+                             </ul>
+                             
+                             <h4>طريقة التفاعل:</h4>
+                             <ul>
+                                 <li>متسابقون وأرقام scores لتحفيز المنافسة.</li>
+                             </ul>
+
+                             
+<hr>
+<hr>
+    <!-- قسم لوحة التحكم -->
+    <h3>٢. لوحة التحكم (Dashboard)</h3>
+
+    <h4>١. الميزات الإدارية</h4>
+    
+    <div class="feature-box">
+        <h4>إدارة المحتوى:</h4>
+        <ul>
+            <li>القدرة على إضافة/تحرير المقالات في المدونة.</li>
+            <li>تحديث المنتجات في المتجر.</li>
+        </ul>
+    </div>
+<hr>
+    <div class="feature-box">
+        <h4>إدارة المستخدمين:</h4>
+        <ul>
+            <li>تتبع النشاط والإحصائيات.</li>
+        </ul>
+    </div>
+<hr>
+    <h4>٢. أدوات التحكم:</h4>
+    <div class="feature-box">
+        <ul>
+            <li> الأقسام: مدونة، متجر، أسئلة، ....</li>
+            <li>إمكانية إضافة محتوى تعليمي أو ترفيهي جديد.</li>
+        </ul>
+    </div>
+    
+
+                        <!-- 
+                        <h4></h4>
+                        <ul>
+                            <li></li>
+                        </ul>
+
+                         -->
+                         <hr>
+                         <hr>
+                         <!-- قسم القيمة التجارية -->
+<div class="sub-section">
+    <h3>القيمة التجارية والملاحظات</h3>
+    
+    <div class="feature-box">
+        <h4>التميز في المحتوى:</h4>
+        <ul>
+            <li>تقدم المنصة محتوى تعليمياً وتجارياً فريداً باللغة العربية في مجال غير تقليدي (عالم النمل).</li>
+        </ul>
+    </div>
+    
+    <div class="feature-box">
+        <h4>تفاعل المستخدم:</h4>
+        <ul>
+            <li>تجربة مستخدم شاملة: من القراءة إلى الشراء والاختبارات التعليمية.</li>
+        </ul>
+    </div>
+    
+        <h4>فرص النمو:</h4>
+        <ul>
+            <li>إمكانية التوسع في منتجات تربية النمل و المنصه ككل بحيث انها لا تكون فقط للبيع بل للمزيد من المميزات..</li>
+        </ul>
+    </div>
+    
+    <div class="highlight">
+        <p><strong>خلاصة:</strong> "Ant Yard" منصة عربية متكاملة تدمج بين التعليم، الترفيه، والتجارة في مجال تربية النمل. التصميم واضح وسهل الاستخدام، والمحتوى غني وفريد، مما يجعله موقعاً جذاباً للمهتمين بهذا المجال.</p>
+    </div>
+
+                    </div>
+                    <div class="image-content">
+                        <div class="image-gallery">
+                            <div class="gallery-item">
+                                <img src="C:\Users\Beshoy\Desktop\Ant Yard\1.png" alt="pic1" data-full="C:\Users\Beshoy\Desktop\Ant Yard\1.png">
+                            </div>
+                            <div class="gallery-item">
+                                <img src="C:\Users\Beshoy\Desktop\Ant Yard\2.png" alt="pic2" data-full="C:\Users\Beshoy\Desktop\Ant Yard\2.png">
+                            </div>
+                            <div class="gallery-item">
+                                <img src="C:\Users\Beshoy\Desktop\Ant Yard\3.png" alt="pic3" data-full="C:\Users\Beshoy\Desktop\Ant Yard\3.png">
+                            </div>
+                            <div class="gallery-item">
+                                <img src="C:\Users\Beshoy\Desktop\Ant Yard\4.png" alt="pic4" data-full="C:\Users\Beshoy\Desktop\Ant Yard\4.png">
+                            </div>
+                            <div class="gallery-item">
+                                <img src="C:\Users\Beshoy\Desktop\Ant Yard\5.png" alt="pic5" data-full="C:\Users\Beshoy\Desktop\Ant Yard\5.png">
+                            </div>
+                            <div class="gallery-item">
+                                <img src="C:\Users\Beshoy\Desktop\Ant Yard\6.png" alt="pic6" data-full="C:\Users\Beshoy\Desktop\Ant Yard\6.png">
+                            </div>
+                            <div class="gallery-item">
+                                <img src="C:\Users\Beshoy\Desktop\Ant Yard\7.png" alt="pic7" data-full="C:\Users\Beshoy\Desktop\Ant Yard\7.png">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 3: Technical Details -->
+        <div class="section">
+            <div class="section-header">
+                <h2>٣. التفاصيل التقنية والتسليم</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <div class="content-grid">
+                    <div class="text-content">
+                        <h3>مقارنة مع Shopify</h3>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>الخاصية</th>
+                                    <th>Shopify</th>
+                                    <th>منصتنا - المرحلة الأولى</th>
+                                    <th>منصتنا - المرحلة الثانية</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>التكلفة الأولية</td>
+                                    <td>اشتراك شهري بحوالى 72$ او اكثر + عمولات</td>
+                                    <td><strong>حوالى  340$ لمره واحده</strong> (بدون مصاريف إضافية)</td>
+                                    <td> حسب المتطلبات يتم تحديد السعر</td>
+                                </tr>
+                                <tr>
+                                    <td>نموذج الدفع</td>
+                                    <td>دفع شهري مستمر + عمولات على المبيعات</td>
+                                    <td>دفعة <strong>واحدة فقط</strong> - لا توجد مدفوعات مستمرة</td>
+                                    <td>دفعة واحدة - استثمار طويل المدى</td>
+                                </tr>
+                                <tr>
+                                    <td>التعقيد التقني</td>
+                                    <td>منصة معقدة تحتاج خبرة تقنية</td>
+                                    <td>بداية <strong>مبسطة جداً</strong> - مناسبة للمبتدئين</td>
+                                    <td>تطوير متدرج حسب احتياجك</td>
+                                </tr>
+                                <tr>
+                                    <td>التكاليف المخفية</td>
+                                    <td>عمولات + إضافات مدفوعة + تكاليف قوالب</td>
+                                    <td><strong>لا توجد</strong> تكاليف إضافية</td>
+                                    <td>سعر واضح ومحدد مسبقاً + قد تحتاح الى دفع اشتراك شهرى للخوادم العامله اذا كانت البيانات كثيره</td>
+                                </tr>
+                                <tr>
+                                    <td>المرونة</td>
+                                    <td>قوالب جاهزة محدودة التعديل</td>
+                                    <td>تصميم <strong>مخصص 100%</strong> لعلامتك</td>
+                                    <td>تطوير كامل حسب رؤيتك</td>
+                                </tr>
+                                <tr>
+                                    <td>الدعم الفني</td>
+                                    <td>دعم جماعي - دفع إضافي للدعم المميز</td>
+                                    <td>دعم <strong>شخصي مباشر</strong> ومجاني</td>
+                                    <td>دعم متكامل وشامل</td>
+                                </tr>
+                                <tr>
+                                    <td>مدة التنفيذ</td>
+                                    <td>فوري ولكن يحتاج إعداد معقد</td>
+                                    <td>أسبوعين - <strong> او اقل</strong></td>
+                                    <td>4-6 أسابيع حسب المتطلبات</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h3>سياسة التسعير والدفع</h3>
+                        <h4>المرحلة الأولى</h4>
+                        <ul>
+                            <li>السعر: 1,600 * 20% خصم مما يجعل التكلفه الكليه تساوى 1280 ريال حوالى 340$ </li>
+                            <li>لا توجد مصاريف إضافية</li>
+                            <li>يشمل: تصميم المتجر المبسط، عرض المنتجات المختارة، تكامل مع الواتساب, ربط عربه التسوق بالواتساب، دعم فني أساسي</li>
+                            <li>ملحوظه: المرحلةالاولى تشمل كل شئ ما عدا:تسجيل الدخول, تسجيل طلبات من المتجر نفسه, الدفع الاليكترونى و لوحه التحكم Dashboard, تسجيل افضل المتسابقيين فى لعبه الاسائل</li>
+
+                        </ul>
+                        
+                        <h4>المرحلة الثانية</h4>
+                        <ul>
+                            <li>السعر: يحدد حسب متطلبات العمل</li>
+                            <li>العوامل المؤثرة في السعر: عدد المنتجات، عدد العملاء المتوقع، الميزات المطلوبة، التكاملات الإضافية</li>
+                        </ul>
+                        
+                     
+                        
+                        <div class="highlight">
+                            <p>نقدم لك بداية ذكية بدون تعقيدات، ثم نطور معك حسب نجاح مشروعك!</p>
+                        </div>
+
+                        <div class="highlight">
+                            <p>لا يتم الدفع قبل تسليم المرحله كامله و كل مرحله يتم الدفع لها على حدى</p>
+                        </div>
+
+                        <div class="highlight">
+                            <p>ملحوظه مهمه ان المرحله الثانيةهى اللتى تشمل الاجزاء المعقضه و هى: تسجيل الدخول, تسجيل طلبات من المتجر نفسه, الدفع الاليكترونى و لوحه التحكم Dashboard, تسجيل افضل المتسابقيين فى لعبه الاسائله</p>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enhanced Modal with Zoom Controls -->
+    <div class="modal" id="imageModal">
+        <span class="close-modal" id="closeModal">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div class="modal-controls">
+            <button class="modal-btn" id="zoomOut">-</button>
+            <div class="zoom-level" id="zoomLevel">100%</div>
+            <button class="modal-btn" id="zoomIn">+</button>
+            <button class="modal-btn" id="resetZoom">⟳</button>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>Ant Yard Platform Proposal &copy; 2025 - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+  
+    <script>
+        // Section toggle functionality (your existing code)
+        document.querySelectorAll('.section-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const section = header.parentElement;
+                section.classList.toggle('active');
+            });
+        });
+        
+        // Enhanced Image modal functionality with zoom
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const closeModal = document.getElementById('closeModal');
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
+        const resetZoomBtn = document.getElementById('resetZoom');
+        const zoomLevel = document.getElementById('zoomLevel');
+        
+        let currentScale = 1;
+        let isDragging = false;
+        let startX, startY, scrollLeft, scrollTop;
+        
+        // Open modal with image
+        document.querySelectorAll('.gallery-item img').forEach(img => {
+            img.addEventListener('click', () => {
+                modal.style.display = 'flex';
+                modalImage.src = img.getAttribute('data-full');
+                resetZoom();
+                modal.classList.remove('zoomed');
+            });
+        });
+        
+        // Zoom functionality
+        function updateZoom() {
+            modalImage.style.transform = `scale(${currentScale})`;
+            zoomLevel.textContent = `${Math.round(currentScale * 100)}%`;
+            
+            if (currentScale > 1) {
+                modal.classList.add('zoomed');
+            } else {
+                modal.classList.remove('zoomed');
+            }
+        }
+        
+        function zoomIn() {
+            currentScale = Math.min(currentScale + 0.25, 3);
+            updateZoom();
+        }
+        
+        function zoomOut() {
+            currentScale = Math.max(currentScale - 0.25, 0.5);
+            updateZoom();
+        }
+        
+        function resetZoom() {
+            currentScale = 1;
+            updateZoom();
+            modalImage.style.transform = 'scale(1) translate(0, 0)';
+        }
+        
+        // Mouse wheel zoom
+        modal.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        });
+        
+        // Button events
+        zoomInBtn.addEventListener('click', zoomIn);
+        zoomOutBtn.addEventListener('click', zoomOut);
+        resetZoomBtn.addEventListener('click', resetZoom);
+        
+        // Image dragging when zoomed
+        modalImage.addEventListener('mousedown', (e) => {
+            if (currentScale > 1) {
+                isDragging = true;
+                startX = e.pageX - modalImage.offsetLeft;
+                startY = e.pageY - modalImage.offsetTop;
+                modal.style.cursor = 'grabbing';
+            }
+        });
+        
+        modal.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - modalImage.offsetLeft;
+            const y = e.pageY - modalImage.offsetTop;
+            const walkX = (x - startX) * 2;
+            const walkY = (y - startY) * 2;
+            
+            modalImage.style.transform = `scale(${currentScale}) translate(${walkX}px, ${walkY}px)`;
+        });
+        
+        modal.addEventListener('mouseup', () => {
+            isDragging = false;
+            if (currentScale > 1) {
+                modal.style.cursor = 'grab';
+            }
+        });
+        
+        modal.addEventListener('mouseleave', () => {
+            isDragging = false;
+        });
+        
+        // Touch events for mobile
+        modalImage.addEventListener('touchstart', (e) => {
+            if (currentScale > 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX - modalImage.offsetLeft;
+                startY = e.touches[0].clientY - modalImage.offsetTop;
+            }
+        });
+        
+        modal.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.touches[0].clientX - modalImage.offsetLeft;
+            const y = e.touches[0].clientY - modalImage.offsetTop;
+            const walkX = (x - startX) * 2;
+            const walkY = (y - startY) * 2;
+            
+            modalImage.style.transform = `scale(${currentScale}) translate(${walkX}px, ${walkY}px)`;
+        });
+        
+        modal.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+        
+        // Close modal
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+            resetZoom();
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                resetZoom();
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                modal.style.display = 'none';
+                resetZoom();
+            }
+        });
+    </script>
+</body>
+</html>
